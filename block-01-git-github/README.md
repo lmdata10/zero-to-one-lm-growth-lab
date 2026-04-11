@@ -37,17 +37,17 @@ By the end of this block, Git is muscle memory — not something we reference no
 
 |Log|Topic|
 |---|---|
-|[b1-01-git-mental-model.md](https://claude.ai/chat/daily-logs/b1-01-git-mental-model.md)|Snapshots mental model, three zones, first commits|
-|[b1-02-core-loop.md](https://claude.ai/chat/daily-logs/b1-02-core-loop.md)|Staging intentionally, diff, show, unstaging|
-|[b1-03-gitignore.md](https://claude.ai/chat/daily-logs/b1-03-gitignore.md)|Ignore rules, global vs repo-level, secrets in history|
-|[b1-04-reading-history.md](https://claude.ai/chat/daily-logs/b1-04-reading-history.md)|git log, diff, show — investigation workflow|
-|[b1-05-remote-repos.md](https://claude.ai/chat/daily-logs/b1-05-remote-repos.md)|Remotes, push, pull, clone|
-|[b1-06-branching.md](https://claude.ai/chat/daily-logs/b1-06-branching.md)|Branching, switch, merge, fast-forward vs merge commit|
-|[b1-07-fixing-mistakes.md](https://claude.ai/chat/daily-logs/b1-07-fixing-mistakes.md)|restore, reset, revert, reflog|
-|[b1-08-commit-messages.md](https://claude.ai/chat/daily-logs/b1-08-commit-messages.md)|Conventional commits format|
-|[b1-09-github-specific.md](https://claude.ai/chat/daily-logs/b1-09-github-specific.md)|README, repo structure, blame, diffs, issues in GitHub UI|
-|[b1-10-real-workflow.md](https://claude.ai/chat/daily-logs/b1-10-real-workflow.md)|Real workflow — branching, merging, conflict resolution|
-|[b1-11-git-rebase.md](https://claude.ai/chat/daily-logs/b1-11-git-rebase.md)|git rebase — when and why, rebase vs merge|
+|[b1-01-git-mental-model.md](block-01-git-github/daily-logs/b1-01-git-mental-model.md)|Snapshots mental model, three zones, first commits|
+|[b1-02-core-loop.md](block-01-git-github/daily-logs/b1-02-core-loop.md)|Staging intentionally, diff, show, unstaging|
+|[b1-03-gitignore.md](block-01-git-github/daily-logs/b1-03-gitignore.md)|Ignore rules, global vs repo-level, secrets in history|
+|[b1-04-reading-history.md](block-01-git-github/daily-logs/b1-04-reading-history.md)|git log, diff, show — investigation workflow|
+|[b1-05-remote-repos.md](block-01-git-github/daily-logs/b1-05-remote-repos.md)|Remotes, push, pull, clone|
+|[b1-06-branching.md](block-01-git-github/daily-logs/b1-06-branching.md)|Branching, switch, merge, fast-forward vs merge commit|
+|[b1-07-fixing-mistakes.md](block-01-git-github/daily-logs/b1-07-fixing-mistakes.md)|restore, reset, revert, reflog|
+|[b1-08-commit-messages.md](block-01-git-github/daily-logs/b1-08-commit-messages.md)|Conventional commits format|
+|[b1-09-github-specific.md](block-01-git-github/daily-logs/b1-09-github-specific.md)|README, repo structure, blame, diffs, issues in GitHub UI|
+|[b1-10-real-workflow.md](block-01-git-github/daily-logs/b1-10-real-workflow.md)|Real workflow — branching, merging, conflict resolution|
+|[b1-11-git-rebase.md](block-01-git-github/daily-logs/b1-11-git-rebase.md)|git rebase — when and why, rebase vs merge|
 
 ---
 
