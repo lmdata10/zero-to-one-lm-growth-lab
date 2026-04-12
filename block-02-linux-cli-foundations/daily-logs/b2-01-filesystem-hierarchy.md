@@ -29,11 +29,11 @@ you're reading system state vs. reading config files.
 
 ```bash
 ls /
-````
+```
 
 **Output:**
 
-```
+```bash
 afs  boot  etc   lib    media  opt   root  sbin  sys  usr
 bin  dev   home  lib64  mnt    proc  run   srv   tmp  var
 ```
