@@ -1,3 +1,16 @@
+# macOS
 .DS_Store
-*.tmp
+.AppleDouble
+
+# Private local tooling — never push
+scratch/
 .env
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*.tmp
+
+# Session state — local only
+CONTEXT.md
