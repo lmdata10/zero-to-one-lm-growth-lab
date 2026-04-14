@@ -14,7 +14,7 @@ Each block is sequenced intentionally. Don't skip ahead. Each one feeds the next
 **Block 2 — Linux CLI Foundations**
 - [x] Topic 1: Filesystem hierarchy
 - [x] Topic 2: Navigation
-- [ ] Topic 3: File manipulation
+- [x] Topic 3: File manipulation
 - [ ] Topic 4: Reading files
 - [ ] Topic 5: Searching
 - [ ] Topic 6: Redirection
