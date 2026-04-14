@@ -4,6 +4,7 @@
 
 # Private local tooling — never push
 scratch/
+supporting-docs/
 .env
 
 # Editor
