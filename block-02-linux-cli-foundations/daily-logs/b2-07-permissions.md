@@ -1,217 +1,243 @@
-# Permissions — chmod, chown, octal vs symbolic, umask
+# Permissions — chmod, chown, chgrp, octal vs symbolic, umask
 
-**Block:** Block 2 — Linux CLI Foundations
-**Topic:** Topic 7 — Permissions
-**Filename:** `b2-07-permissions.md`
-**Path:** `block-02-linux-cli-foundations/daily-logs/b2-07-permissions.md`
+**Block:** Block 2 — Linux CLI Foundations 
+**Topic:** Permissions — `chmod`, `chown`, `chgrp`, octal vs symbolic, `umask` 
+**Filename:** `b2-07-permissions.md` 
+**Path:** `block-02-linux-cli/daily-logs/b2-07-permissions.md`
 
 ---
 
 ## The Big Picture
 
-Every file and directory on Linux has permissions. Who can read it, write to it, execute it. This is the wall between your data and everyone else's. Think of a hotel — each room (file) has a lock. The keycard (permission) determines who can get in: owner (full access), group (limited access), everyone else (no access). Permissions work the same way: owner, group, others. Each has three permissions: read (r), write (w), execute (x).
+Permissions are how Linux decides who can do what to a file. Every file and directory has an owner, a group, and a permission set. Get this wrong and services can not read their configs, scripts won't execute, and users can access things they shouldn't. This is one of the most common sources of real-world breakage.
+
+Every file has three permission sets — owner, group, and others. Each set has three bits — **read (`r`), write (`w`), execute (`x`)**. The permission string in `ls -l` output maps directly to this:
+
+```
+-rwxr-xr--  1  root  wheel  1234  Apr 14  script.sh
+```
+
+First character is file type (`-` = file, `d` = directory, `l` = symlink). Then three characters for **owner**, three for **group**, three for **others**.
+
+Two ways to set permissions — symbolic (human readable, adds or removes individual bits) and octal (numeric, sets the full permission set at once). Both do the same thing. Octal is faster in scripts and documentation once it clicks.
+
+### Quick Reference
+
+|Concept|Detail|
+|---|---|
+|Octal values|`r=4`, `w=2`, `x=1` — add per set|
+|Common octals|`755` = rwxr-xr-x, `644` = rw-r--r--, `600` = rw-------, `750` = rwxr-x---|
+|Symbolic operators|`+` adds, `-` removes, `=` sets exactly|
+|Symbolic targets|`u` = owner, `g` = group, `o` = others, `a` = all|
+|umask default|`022` → files get `644`, dirs get `755`|
+|umask hardened|`027` → files get `640`, dirs get `750`|
 
 ---
 
 ## Learning by Doing
 
-### Drill 1 — View permissions
+### Drill 1 — Read a permission string
 
 **What I ran:**
 
 ```bash
-ls -la /
+cd /tmp
+touch permissions-test.txt
+ls -l permissions-test.txt
 ```
 
 **Output:**
 
 ```
-total 24
-dr-xr-xr-x.  18 root root  235 Apr 11 17:56 .
-dr-xr-xr-x.   2 root root    6 Apr  1  2025 afs
-lrwxrwxrwx.   1 root root    7 Apr  1  2025 bin -> usr/bin
-dr-xr-xr-x.   7 root root 4096 Apr 11 17:58 boot
-dr-xr-xr-x.  20 root root 3440 Apr 15 15:09 dev
-dr-xr-xr-x. 133 root root 8192 Apr 15 18:09 etc
-dr-xr-xr-x.   3 root root   21 Apr 11 17:53 home
-drwxrwxrwt.  26 root root 4096 Apr 15 19:42 tmp
-drwxr-xr-x.  18 root root 4096 Apr 11 17:53 usr
-drwxr-xr-x.  20 root root 4096 Apr 11 17:53 var
+-rw-r--r--. 1 student student 0 Apr 15 22:25 permissions-test.txt
 ```
 
-**What I learned:** The first column shows 10 characters: type (d/-/l) + owner permissions + group permissions + others permissions. The dot means SELinux context is active.
+**What I learned:** Reading the string left to right — `-` is a regular file, `rw-` is owner gets read and write, `r--` is group gets read only, `r--` is others get read only. Owner is `student`, group is `student`. The `1` is the hard link count — how many directory entries point to this inode. Usually 1 for regular files. Octal translation: `rw-`=6, `r--`=4, `r--`=4 → `644`. That is the default for new files created by a regular user.
 
 ---
 
-### Drill 2 — Check your home directory permissions
+### Drill 2 — Set permissions with octal
 
 **What I ran:**
 
 ```bash
-ls -la ~
+chmod 755 /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
+chmod 600 /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
 ```
 
 **Output:**
 
 ```
-total 32
-drwx------. 15 student student 4096 Apr 13 19:10 .
-drwxr-xr-x.  3 root    root      21 Apr 11 17:53 ..
--rw-------.  1 student student 6178 Apr 14 23:39 .bash_history
--rw-r--r--.  1 student student   18 Oct 28  2024 .bash_logout
--rw-r--r--.  1 student student  144 Oct 28  2024 .bash_profile
--rw-r--r--.  1 student student 1480 Apr 13 21:53 .bashrc
-drwx------.  9 student student 4096 Apr 11 17:54 .cache
-drwx------. 10 student student 4096 Apr 11 17:56 .config
-drwxr-xr-x.   2 student student    6 Apr 11 17:54 Desktop
-drwx------.   4 student student   32 Apr 11 17:54 .local
-drwxr-xr-x.   4 student student   39 Apr 11 17:49 .mozilla
-drwxr-xr-x.   2 student student    6 Apr 11 17:54 Music
-drwxr-xr-x.   2 student student    6 Apr 11 17:54 Pictures
-drwxr-xr-x.   2 student student    6 Apr 11 17:54 Public
-drwxr-xr-x.   2 student student    6 Apr 11 17:54 Templates
-drwxr-xr-x.   2 student student    6 Apr 11 17:54 Videos
-/home/student
+-rwxr-xr-x. 1 student student 0 Apr 15 22:25 /tmp/permissions-test.txt
+-rw-------. 1 student student 0 Apr 15 22:25 /tmp/permissions-test.txt
 ```
 
-**What I learned:** Home directory has drwx------ — only the student user can enter, read, write. No one else has any access.
+**What I learned:** `755` — owner gets rwx=7, group gets r-x=5, others get r-x=5. `600` — owner gets rw-=6, group gets nothing=0, others get nothing=0. `600` is the required permission for SSH private keys — only the owner can read or write it, nobody else can do anything with it at all. If a private key is readable by others, `ssh` refuses to use it and throws a `permissions are too open` error. The risk is not just accidental changes — anyone with read access to a private key can copy it and impersonate the owner to any server that trusts it.
 
 ---
 
-### Drill 3 — Change permissions with symbolic mode
+### Drill 3 — Set permissions with symbolic mode
 
 **What I ran:**
 
 ```bash
-touch testfile.txt
-ls -la testfile.txt
-chmod a=r testfile.txt
-ls -la testfile.txt
+chmod u+x /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
+chmod g+rw /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
+chmod o-r /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
 ```
 
 **Output:**
 
 ```
--rw-r--r--. 1 student student 0 Apr 15 19:46 testfile.txt
--r--r--r--. 1 student student 0 Apr 15 19:46 testfile.txt
+-rwx------. 1 student student 0 Apr 15 22:25 /tmp/permissions-test.txt
+-rwxrw----. 1 student student 0 Apr 15 22:25 /tmp/permissions-test.txt
+-rwxrw----. 1 student student 0 Apr 15 22:25 /tmp/permissions-test.txt
 ```
 
-**What I learned:** a=r removes all permissions and sets read for everyone. Original rw-r--r-- became r--r--r--.
+**What I learned:** `u+x` adds execute to owner while keeping existing bits. `g+rw` adds read and write to group while keeping existing bits. `o-r` removes read from others — no visible change here because others already had no permissions. Removing a bit that is already absent runs without error. Symbolic mode only touches the specified bit, it does not care about the current state. Final octal: `rwx`=7, `rw-`=6, `---`=0 → `760`.
 
 ---
 
-### Drill 4 — Add execute with symbolic
+### Drill 4 — Change owner and group with chown
 
 **What I ran:**
 
 ```bash
-chmod u+x testfile.txt
-ls -la testfile.txt
-chmod u=x testfile.txt
-ls -la testfile.txt
+sudo chown root /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
+sudo chown root:root /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
+sudo chown student:student /tmp/permissions-test.txt
+ls -l /tmp/permissions-test.txt
 ```
 
 **Output:**
 
 ```
--r-xr--r--. 1 student student 0 Apr 15 19:46 testfile.txt
----xr--r--. 1 student student 0 Apr 15 19:46 testfile.txt
+-rwxrw----. 1 root    student 0 Apr 15 22:25 /tmp/permissions-test.txt
+-rwxrw----. 1 root    root    0 Apr 15 22:25 /tmp/permissions-test.txt
+-rwxrw----. 1 student student 0 Apr 15 22:25 /tmp/permissions-test.txt
 ```
 
-**What I learned:** u+x adds execute to owner, keeps read/write. u=x sets only execute for owner, removes read/write.
+**What I learned:** `chown user` changes owner only — group stays as-is. `chown user:group` changes both in one shot. `chown :group` changes only the group — same as `chgrp group file`. In practice `chown user:group` is the one to reach for most since owner and group usually need to be set together. Permissions bits stay unchanged through all three — `chown` only touches ownership, not the permission mask.
 
 ---
 
-### Drill 5 — Octal mode
+### Drill 5 — umask and default permissions
 
 **What I ran:**
 
 ```bash
-chmod 755 testfile.txt
-ls -la testfile.txt
-chmod 644 testfile.txt
-ls -la testfile.txt
+umask
+umask 027
+touch /tmp/umask-test.txt
+mkdir /tmp/umask-test-dir
+ls -l /tmp/umask-test.txt
+ls -ld /tmp/umask-test-dir
+umask 022
 ```
 
 **Output:**
 
 ```
--rwxr-xr-x. 1 student student 0 Apr 15 19:46 testfile.txt
--rw-r--r--. 1 student student 0 Apr 15 19:46 testfile.txt
+0022
+
+-rw-r-----. 1 student student 0 Apr 15 22:44 /tmp/umask-test.txt
+drwxr-x---. 2 student student 6 Apr 15 22:44 /tmp/umask-test-dir
 ```
 
-**What I learned:** 755 = owner rwx (7), group rx (5), others rx (5). 644 = owner rw (6), group r (4), others r (4).
+**What I learned:** `umask` subtracts from the system maximum at creation time. `027` applied: `666 - 027 = 640` for files → `rw-r-----`, `777 - 027 = 750` for directories → `rwxr-x---`. `umask 027` is common in hardened environments where files should not be world-readable. Default `022` leaves files world-readable (`644`) which is fine for most systems. Reset `umask` after changing it in a shell session — a changed mask affects everything created until the shell exits.
 
 ---
 
-### Drill 6 — Check ownership
+## Lab: Putting It Together
 
-**What I ran:**
-
-```bash
-ls -la /etc/passwd
-```
-
-**Output:**
-
-```
--rw-r--r--. 1 root root 2210 Apr 11 17:53 /etc/passwd
-```
-
-**What I learned:** /etc/passwd is owned by root:root. Regular users can read it because it has r-- for others.
-
----
-
-### Drill 7 — Check your groups
-
-**What I ran:**
-
-```bash
-groups
-id
-```
-
-**Output:**
-
-```
-student wheel
-uid=1000(student) gid=1000(student) groups=1000(student),10(wheel) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-```
-
-**What I learned:** I am student (uid 1000), primary group student (gid 1000), secondary group wheel (gid 10). wheel is the sudo group on RHEL-based systems.
-
----
-
-## Lab: Putting it together
-
-**Task:** Create a directory where a group can share files for a web project, with owner rwx, group rx, others r--.
+**Task:** Four permission tasks using both octal and symbolic modes.
 
 **What I did:**
 
 ```bash
-mkdir -p ~/webproject
-touch ~/webproject/index.html
-touch ~/webproject/style.css
-touch ~/webproject/script.js
-chmod 750 ~/webproject
-chmod 644 ~/webproject/*
-ls -la ~/webproject/
+# 1. Create lab-script.sh, set 750, verify
+touch /tmp/lab-script.sh
+chmod 750 /tmp/lab-script.sh
+ls -l /tmp/lab-script.sh
+
+# 2. Create lab-secret.txt, set owner read-only using symbolic, verify
+touch /tmp/lab-secret.sh
+chmod u=r,g=,o= /tmp/lab-secret.sh
+ls -l /tmp/lab-secret.sh
+
+# 3. Create lab-shared dir, set 750, verify with ls -ld
+mkdir -p /tmp/lab-shared
+chmod 750 /tmp/lab-shared
+ls -ld /tmp/lab-shared
+
+# 4. Check current umask, explain what it means
+umask
+umask -S
+touch /tmp/umask-test.txt
+mkdir -p /tmp/umask-test
+ls -l /tmp/umask-test.txt
+ls -ld /tmp/umask-test
 ```
 
 **Output:**
 
 ```
-drwxr-x---.  2 student student   58 Apr 15 21:27 .
-drwxr-xr-x. 16 student student 4096 Apr 13 19:57 ..
--rw-r--r--.  1 student student    0 Apr 15 21:27 index.html
--rw-r--r--.  1 student student    0 Apr 15 21:27 script.js
--rw-r--r--.  1 student student    0 Apr 15 21:27 style.css
+# Task 1
+-rwxr-----. 1 student student 0 Apr 16 10:00 /tmp/lab-script.sh
+
+# Task 2
+-r--------. 1 student student 0 Apr 16 10:02 /tmp/lab-secret.sh
+
+# Task 3
+drwxr-x---. 2 student student 6 Apr 16 10:06 /tmp/lab-shared
+
+# Task 4
+0027
+u=rwx,g=rx,o=
+-rw-r-----. 1 student student 0 Apr 16 10:10 /tmp/umask-test.txt
+drwxr-x---. 2 student student 6 Apr 16 10:11 /tmp/umask-test
 ```
 
-**Outcome:** Directory is 750 (owner rwx, group rx, others none). Files inside are 644 (owner rw, group r, others r). Group members can enter and read files but cannot delete them. The . in permissions shows SELinux context is active.
+**Outcome:** All four tasks completed correctly.
 
-**Key distinction learned:** Execute permission on a directory is about traversal (cd into it, access files inside), not "executing" it like a file.
+**What each task revealed:**
+
+- Task 1: `750` — owner rwx=7, group r-x=5, others none=0. `rwxr-x---` confirmed in output.
+- Task 2: `u=r,g=,o=` uses the `=` operator to set exactly — `g=` and `o=` with nothing after clears all bits for those sets. Cleaner than chaining multiple `-` removals.
+- Task 3: `ls -l` on a directory lists its contents. `ls -ld` shows the directory entry itself — needed to check permissions on the directory. Figured this out mid-lab. `chmod -R 750` would apply recursively to everything inside — useful but needs care since files and directories usually need different permission sets.
+- Task 4: `umask -S` shows the mask in symbolic format — not drilled, found it independently. Current mask is `027` still set from Drill 5. Files get `640`, directories get `750`. Math: `666-027=640`, `777-027=750`.
+
+**Errors hit:** None.
+
+**Key distinction learned:** `ls -l` lists directory contents. `ls -ld` shows the directory entry itself. Always use `ls -ld` when checking permissions on a directory.
 
 ---
 
-[update learnings]
+## What Stuck With Me
+
+- **Three sets, three bits.** Owner, group, others. Read=4, write=2, execute=1. Add per set to get the octal digit.
+- **Octal sets everything at once.** `chmod 644 file` — one command, full permission set defined. Faster in scripts.
+- **Symbolic changes individual bits.** `chmod u+x file` adds execute without touching anything else. Better interactively when recalculating the full octal is annoying.
+- **`=` sets exactly.** `chmod u=r,g=,o=` clears group and others entirely. Cleaner than multiple `-` operations.
+- **`chown user:group` in one shot.** Most of the time owner and group need setting together.
+- **`umask` subtracts at creation time.** `022` is the standard default. `027` is the hardened default. Reset after changing in a session.
+- **`ls -ld` for directory permissions.** `ls -l` lists contents, not the directory itself.
+
+---
+
+## Tips from Session
+
+- Reach for octal in scripts and documentation — faster and unambiguous. Use symbolic interactively when adding or removing a single bit without recalculating the full set.
+- `chmod -R` sets the same permissions on files and directories alike — usually wrong. Be deliberate when using it.
+- Always reset `umask` after changing it in a shell session — a changed mask affects everything created until the shell exits.
+
+---
+
+> **Carry Forward:** SSH key permissions (`600`) in practice — Block 4 Topic 4 SSH hardening. `chmod -R` used carefully when setting up service directories — Block 4. Special permission bits (setuid, setgid, sticky bit) — Block 4 Linux Administration. `umask` in `.bashrc` for persistent default — Topic 14 environment.
