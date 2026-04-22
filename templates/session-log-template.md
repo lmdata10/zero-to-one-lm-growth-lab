@@ -1,149 +1,132 @@
-# Topic/Concept/Title
+# [Topic/Concept Title]
 
-**Block:** Block 1 — Git & GitHub
-**Topic:** [ ]
-**Filename:** `b1-0#-topic.md`
-**Path:** `block-01-git-github/logs/b1-0#-topic.md`
-
----
-## The Big Picture
-
-[2–4 sentences in your own words. Not copy-pasted from Claude. Force yourself to write it — this is where retention happens.]
+> **Block:** Block [N] — [Block Name]
+> **Topic:** [Topic number and name]
+> **Skill area:** [Linux / Bash / Python / Networking / Docker / Splunk / AWS / Kubernetes / Terraform / CI-CD] 
 
 ---
 
-## Learning by Doing
+## What This Session Is About
+
+**Concept in plain language:** [One to three sentences. What is this thing? Explain it to someone smart who doesn't know the field. No jargon unless the jargon is the point.]
+
+**Why it matters in real platform/cloud/SRE work:** [One to two sentences. Where does this appear in an actual DevOps, platform engineering, or SRE role?]
+
+---
+
+## Concept Anchor
+
+**The one example that made it click:** [The command you ran, the output you saw, the failure you caused and fixed. The moment it became real — not a textbook definition.]
+
+```bash
+# Actual command or code that anchored the concept
+# Include output if short enough to be useful
+```
+
+---
+
+## Practice Drills
 
 ### Drill 1 — [Name]
 
-**What I ran:**
+**What I did:**
 
 ```bash
-[paste exact commands]
+[exact command] # what it does
 ```
 
 **Output:**
+
 ```
-[paste output or error]
+[actual output — redacted per security check]
 ```
 
-**What I learned:**
-[one line]
+**What I learned:** [one line]
+
+---
 
 ### Drill 2 — [Name]
 
-**What I ran:**
+**What I did:**
 
 ```bash
-[paste exact commands]
+[exact command] # what it does
 ```
 
 **Output:**
 
 ```
-[paste outputs/erros]
+[actual output]
 ```
 
-**What I learned:**
+**What I learned:** [one line]
+
+---
 
 ### Drill 3 — [Name]
 
-**What I ran:**
-
-```bash
-
-```
-
-**Output:**
-
-```
-
-```
-
-**What I learned:**
-
-
-### Drill 4 — [Name] _(if applicable)_
-
-**What I ran:**
-
-```bash
-
-```
-
-**Output:**
-
-```
-
-```
-
-**What I learned:**
-
-
-### Drill 5 — [Name] _(if applicable)_
-
-**What I ran:**
-
-```bash
-
-```
-
-**Output:**
-
-```
-
-```
-
-**What I learned:**
+[Same format]
 
 ---
 
-## Lab: Putting it together
+### Drill 4 — [Name] _(if applicable)_
 
-**Task:**
-[Paste the lab task Claude gave you]
+[Same format]
 
-**What I did:**
-```bash
-[commands used]
+---
+
+### Drill 5 — [Name] _(if applicable)_
+
+[Same format]
+
+---
+
+## Lab Assignment
+
+**Scenario:** [Real-world context — where would a platform engineer or SRE actually encounter this?]
+
+**Task:** [Specific deliverable.]
+
+**Steps I took:**
+
+```
+[actions/commands]
+# Output
+[Second step]
+# Output/thoughts/errors
+[Etc.]
+# Output/thoughts/errors
 ```
 
-**Outcome:**
-[Did it work? What broke? How did you fix it?]
+**What actually happened:** [Honest account. What broke? What error? How did I figure it out? How long did it take?]
 
-**Errors hit:**
-```
-[paste any errors]
-```
-
-**How I resolved them:**
-[what fixed it, or what's still unresolved]
-
-**Key distinction learned:** 
-[optional — fill when something unexpected came up and how your worked through it]
+**The result:** [What I ended up with.]
 
 ---
 
-## What Stuck With Me
+## Tips and Takeaways
 
-- [Takeaway 1]
-- [Takeaway 2]
-- [Takeaway 3]
-- [Takeaway 4 if applicable]
-- [Takeaway 5 if applicable]
+**Remember:**
 
----
+- [Specific — tied to this session]
+- [Another one]
+- [Max three]
 
-## Tips from Session
+**Common failure modes:**
 
-- [Tip 1]
-- [Real World Tip 2]
-- [Pro Tip 3 if applicable]
-- [Tip 4 if applicable]
+- [What breaks this / what will trip you up again]
+- [Another pro tip]
+
+**Next session:** [One sentence — what does today's work make possible?]
 
 ---
 
-> Carry Forward: [Anything that didn't click, errors unresolved, or questions to pick up next session. "None" is fine if clean. This feeds directly into CONTEXT.md.]
+## Honest Notes
+
+[Max two lines. The real account.  Was this harder than expected? Did something take 45 minutes that should have taken 5? Did something click unexpectedly? Specific and honest — this feeds the Substack posts.]
 
 ---
 
+## Security Review
+
+[clean] _or_ [items redacted — see chat]

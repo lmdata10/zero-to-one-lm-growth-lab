@@ -1,54 +1,76 @@
-x# Block [#] — [Block Name]
+# Block [N] — [Phase Name]
 
-**Target:** [One line — what does "done" look like for this block?]
-
----
-
-## What This Block Is
-
-[2–3 sentences. What does this block teach and why does it matter for the target role? Write it like you're explaining to someone why they shouldn't skip it.]
+**Target:** [One line — what does "done" look like for this block?]
 
 ---
 
-## Progress
+## Purpose
 
-| # | Topic | Status |
-|---|-------|--------|
-| 1 | [Topic name] | ⏳ |
-| 2 | [Topic name] | ⏳ |
-| 3 | [Topic name] | ⏳ |
-| 4 | [Topic name] | ⏳ |
-| 5 | [Topic name] | ⏳ |
-
-Status options: ✅ Done / 🔄 In Progress / ⏳ Not Started
+[One paragraph. Why this phase exists. What problem it solves. What you didn't have before it that you'll have after it. Be honest — not motivational.]
 
 ---
 
-## Session Logs
+## What We're Doing Here
 
-| Log | Topic |
-|-----|-------|
-| [filename.md](daily-logs/filename.md) | One line description |
+[Bullet list of the specific skills, tools, certs, or labs covered in this phase. Specific. Not "learn Linux" but "build functional CLI fluency on Rocky Linux VM — navigate, read logs, parse with grep/awk, write basic Bash scripts."]
 
----
-
-## Key Concepts From This Block
-
-[Fill as you go through the block. One concept per bullet. Write it in your
-own words — not copy-pasted from the session log. This section is your
-quick-reference when you need to remember something from this block months
-later.]
+- [ ] Skill / tool / cert 1
+- [ ] Skill / tool / cert 2
+- [ ] Lab assignment 1
+- [ ] Lab assignment 2
+- [ ] Substack post published (if applicable)
 
 ---
 
-## Exit Criteria
+## Outcomes
 
-- [ ] [Criteria 1 — specific and verifiable]
-- [ ] [Criteria 2 — specific and verifiable]
-- [ ] [Criteria 3 — specific and verifiable]
+By the end of this phase, I can:
+
+- [Specific, demonstrable capability — not "understand Linux" but "write a Bash script that parses auth logs and outputs failed login counts by IP"]
+- [Another specific capability]
+- [Another specific capability]
+
+And I have produced:
+
+- [GitHub output 1]
+- [GitHub session log]
+- [Substack post title, if applicable]
 
 ---
 
-## Honest Assessment
+## Resources Used
 
-[Fill at end of block — what clicked, what didn't, what you'd do differently.]
+|Resource|URL|Type|Cost|
+|---|---|---|---|
+|[Name]|[URL]|Video / Docs / Lab / Dataset|Free / $XX|
+
+---
+
+## Cert Details (if applicable)
+
+|Field|Detail|
+|---|---|
+|Cert name||
+|Exam cost||
+|Exam date (planned)||
+|Exam date (actual)||
+|Result|Pass / Fail / Pending|
+|Score||
+|Notes||
+|||
+|||
+
+---
+
+## Session Log Index
+
+|Log|Topic|
+|---|---|
+|[bN-NN-filename.md](daily-logs/filename.md)|One line description|
+|||
+
+---
+
+## Honest Notes
+
+[After completing the phase, write a short honest paragraph here. What was harder than expected. What was easier. What you'd do differently. This feeds the Substack post.]
