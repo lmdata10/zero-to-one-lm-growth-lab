@@ -1,41 +1,3 @@
-# heading
-
-**bold**
-*italic*
-
----
-
-```bash
-sudo adduser test | grep 123 
-```
-
----
-
-```bash
-#!/bin/bash
-logfile="health-$(date +"%Y-%m-%d").log"
-
-{
-	echo "=== Hostname ==="
-	hostname
-	
-	echo "=== Date ==="
-	date
-	date +"%Y-%m-%d"
-	
-	echo "=== Uptime ==="
-	uptime
-	
-	echo "=== Top Processes (Memory) ==="
-	ps aux --sort=-%mem | head -4
-} > $logfile
-
-echo "$logfile"
-
-```
-
----
-
 # Block 3 - Bash Scripting
 
 **Target:** Write real scripts that solve actual problems - system health check, user provisioning, log parser - with error handling, comments, and security scan passed.
@@ -102,16 +64,16 @@ And I have produced:
 
 |Log|Topic|
 |---|---|
-|[b3-01-what-a-shell-script-is.md](https://file+.vscode-resource.vscode-cdn.net/Users/limeshmahial/Developer/MEGA/IT/GitHub/zero-to-one/zero-to-one-lm-growth-lab/block-03-bash/session-logs/b3-01-what-a-shell-script-is.md)|Pre-Topic: Vim basics + Topic 1: Shell scripts, shebang, redirection|
-|[b3-02-variables-and-quoting.md](http://b3-02-variables-and-quoting.md/)|Topic 2: Variable declaration, referencing, quoting rules|
-|[b3-03-user-input-parameters.md](http://b3-03-user-input-parameters.md/)|Topic 3: Positional parameters, `$@`, `$#`, `read` command|
-|[b3-04-conditionals.md](http://b3-04-conditionals.md/)|Topic 4: `if/elif/else`, test operators, `[[ ]]` vs `[ ]`|
-|[b3-05-loops.md](http://b3-05-loops.md/)|Topic 5: `for`, `while`, `until`, `break`, `continue`|
-|[b3-06-functions.md](http://b3-06-functions.md/)|Topic 6: Functions, return values, local variables|
-|[b3-07-exit-codes-and-errors.md](http://b3-07-exit-codes-and-errors.md/)|Topic 7: Exit codes, `set -e`, `set -u`, error handling|
-|[b3-08-file-operations.md](http://b3-08-file-operations.md/)|Topic 8: Reading files, checking existence, writing output|
-|[b3-09-cron-scheduling.md](http://b3-09-cron-scheduling.md/)|Topic 9: `crontab`, cron syntax, logging|
-|[b3-10-debugging.md](http://b3-10-debugging.md/)|Topic 10: `bash -x`, debugging techniques|
+|[b3-01-what-a-shell-script-is.md](daily-logs/b3-01-what-a-shell-script-is.md)|Pre-Topic: Vim basics + Topic 1: Shell scripts, shebang, redirection|
+|[b3-02-variables-and-quoting.md](daily-logs/b3-02-variables-and-quoting.md)|Topic 2: Variable declaration, referencing, quoting rules|
+|[b3-03-user-input-parameters.md](daily-logs/)|Topic 3: Positional parameters, `$@`, `$#`, `read` command|
+|[b3-04-conditionals.md](daily-logs/)|Topic 4: `if/elif/else`, test operators, `[[ ]]` vs `[ ]`|
+|[b3-05-loops.md](daily-logs/)|Topic 5: `for`, `while`, `until`, `break`, `continue`|
+|[b3-06-functions.md](daily-logs/)|Topic 6: Functions, return values, local variables|
+|[b3-07-exit-codes-and-errors.md](daily-logs/)|Topic 7: Exit codes, `set -e`, `set -u`, error handling|
+|[b3-08-file-operations.md](daily-logs/)|Topic 8: Reading files, checking existence, writing output|
+|[b3-09-cron-scheduling.md](daily-logs/)|Topic 9: `crontab`, cron syntax, logging|
+|[b3-10-debugging.md](daily-logs/)|Topic 10: `bash -x`, debugging techniques|
 
 ---
 
@@ -121,7 +83,7 @@ And I have produced:
 
 - [x]  Pre-Topic: Vim basics
 - [x]  Topic 1: Shell scripts + health check lab
-- [ ]  Topic 2: Variables + quoting
+- [x]  Topic 2: Variables + quoting
 - [ ]  Topic 3: User input
 - [ ]  Topic 4: Conditionals
 - [ ]  Topic 5: Loops
