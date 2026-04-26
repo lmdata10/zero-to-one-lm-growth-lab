@@ -84,7 +84,7 @@ And I have produced:
 - [x]  Pre-Topic: Vim basics
 - [x]  Topic 1: Shell scripts + health check lab
 - [x]  Topic 2: Variables + quoting
-- [ ]  Topic 3: User input
+- [x]  Topic 3: User input
 - [ ]  Topic 4: Conditionals
 - [ ]  Topic 5: Loops
 - [ ]  Topic 6: Functions
