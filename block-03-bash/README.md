@@ -66,8 +66,8 @@ And I have produced:
 |---|---|
 |[b3-01-what-a-shell-script-is.md](daily-logs/b3-01-what-a-shell-script-is.md)|Pre-Topic: Vim basics + Topic 1: Shell scripts, shebang, redirection|
 |[b3-02-variables-and-quoting.md](daily-logs/b3-02-variables-and-quoting.md)|Topic 2: Variable declaration, referencing, quoting rules|
-|[b3-03-user-input-parameters.md](daily-logs/)|Topic 3: Positional parameters, `$@`, `$#`, `read` command|
-|[b3-04-conditionals.md](daily-logs/)|Topic 4: `if/elif/else`, test operators, `[[ ]]` vs `[ ]`|
+|[b3-03-user-input-parameters.md](daily-logs/b3-03-user-input-parameters.md)|Topic 3: Positional parameters, `$@`, `$#`, `read` command|
+|[b3-04-conditionals.md](daily-logs/b3-04-conditionals.md)|Topic 4: `if/elif/else`, test operators, `[[ ]]` vs `[ ]`|
 |[b3-05-loops.md](daily-logs/)|Topic 5: `for`, `while`, `until`, `break`, `continue`|
 |[b3-06-functions.md](daily-logs/)|Topic 6: Functions, return values, local variables|
 |[b3-07-exit-codes-and-errors.md](daily-logs/)|Topic 7: Exit codes, `set -e`, `set -u`, error handling|
@@ -85,7 +85,7 @@ And I have produced:
 - [x]  Topic 1: Shell scripts + health check lab
 - [x]  Topic 2: Variables + quoting
 - [x]  Topic 3: User input
-- [ ]  Topic 4: Conditionals
+- [x]  Topic 4: Conditionals
 - [ ]  Topic 5: Loops
 - [ ]  Topic 6: Functions
 - [ ]  Topic 7: Exit codes and error handling
