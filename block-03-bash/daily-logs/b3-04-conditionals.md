@@ -6,75 +6,115 @@
 
 ---
 
-## What This Session Is About
+## What This Is
 
-**Conditionals** let a script make decisions - run this block if a condition is true, run a different block if it isn't. Without conditionals, a script runs identically regardless of what's passed in, what exists, or what failed.
+**In plain language:** Conditionals let a script make decisions - run this block if a condition is true, run a different block if it isn't. Without them, a script runs identically regardless of what's passed in, what exists on disk, or what failed upstream.
 
-**Why it matters:** Scripts that run silently on bad input cause incidents. Input validation, file existence checks, and environment guards are the difference between a script that's safe to run in production and one that isn't. Every real automation script on an SRE team starts with guards.
+**Why it matters:** Scripts that run silently on bad input cause incidents. A deployment script that continues after a missing config file, or a log parser that runs against a path that doesn't exist, will produce wrong results with no error. Input validation, file existence checks, and environment guards are what separate scripts safe to run in production from scripts that aren't.
 
 ---
 
-## Concept Anchor
+## Core Concept
 
-**The one example that made it click:** Flipping the file check from branching on exists/not-found to failing fast with `! -f` and `exit 1`. Without `exit 1` on each failed guard, the script kept running downstream - printing a valid environment confirmation after reporting a missing file. Fail fast means nothing downstream runs on bad input.
+The basic structure:
 
 ```bash
+if [[ condition ]]; then
+    # runs if condition is true
+elif [[ other condition ]]; then
+    # runs if first was false and this is true
+else
+    # runs if nothing above matched
+fi
+```
+
+**`[[ ]]` vs `[ ]` - always use `[[ ]]`**
+
+`[ ]` is the old POSIX test syntax. `[[ ]]` is bash-specific and safer - it handles empty variables, spaces in values, and complex expressions without breaking. On any system running bash, `[[ ]]` is correct. The only reason to use `[ ]` is portability to non-bash shells, which you're not targeting.
+
+```bash
+if [[ -f "$path" ]]; then     # correct - bash double bracket
+if [ -f "$path" ]; then       # works but inconsistent - avoid
+```
+
+**Test operators - the ones you'll use repeatedly**
+
+```bash
+-f "$path"          # path exists and is a regular file
+-d "$path"          # path exists and is a directory
+-z "$var"           # variable is empty (zero length)
+-n "$var"           # variable is not empty
+$# -eq 2            # numeric equal - arg count is exactly 2
+$# -ne 2            # numeric not equal
+$count -gt 5        # numeric greater than
+$count -lt 5        # numeric less than
+$env == "prod"      # string equal
+$env != "prod"      # string not equal
+! -f "$path"        # negation - file does NOT exist
+```
+
+**The fail-fast pattern - every guard exits immediately on failure**
+
+```bash
+# Wrong - continues on failure, downstream runs on bad input
+if [[ ! -f "$path" ]]; then
+    echo "File not found"
+    # no exit - script keeps running
+fi
+
+# Correct - fails fast, nothing downstream runs on bad input
 if [[ ! -f "$path" ]]; then
     echo "Error: file not found: $path"
     exit 1
 fi
 ```
 
----
+The fail-fast pattern shows up in every real script. Each guard checks one thing and exits immediately on failure. The actual work only runs when every guard has passed.
 
-## Syntax Reference
+**Input validation - the standard opening block**
 
 ```bash
-if [[ condition ]]; then
-    # do this
-elif [[ other condition ]]; then
-    # do this instead
-else
-    # fallback
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <log-file-path> <environment>"
+    exit 1
 fi
 ```
 
-**Use `[[ ]]` always** - bash-specific, safer than `[ ]`, handles empty variables and spaces without breaking.
+This goes before variables are assigned. You don't touch `$1` until you've confirmed it exists.
 
-| Operator | Tests |
-|---|---|
-| `-z "$var"` | Variable is empty |
-| `-n "$var"` | Variable is not empty |
-| `-f "$path"` | File exists and is a regular file |
-| `-d "$path"` | Directory exists |
-| `-eq` | Numeric equal |
-| `-ne` | Numeric not equal |
-| `-gt` | Numeric greater than |
-| `-lt` | Numeric less than |
-| `==` | String equal |
-| `!=` | String not equal |
-| `\|\|` | Or - each branch needs its own full condition |
+**Watch out for:**
+
+- Assigning variables before validation - `basename "$1"` on an empty `$1` produces silent garbage, not an error. Validation first, variables after, always
+- Missing `exit 1` on failed guards - the script continues and runs downstream blocks on bad input. Every failed guard must exit
+- `|| "value"` without a full condition - `[[ $env == "prod" || "staging" ]]` is always true because `"staging"` is a non-empty string. Every `||` branch needs its own complete comparison: `$env == "prod" || $env == "staging"`
 
 ---
 
-## Practice Drills
+## Drills
 
-### Drill 1 - Input validation on [report-header.sh](/block-03-bash/scripts/report-header.sh)
+### Drill 1 - Input validation on `report-header.sh`
 
-**What I did:** Added `$#` check before variable assignment. Tested with 0, 1, and 2 arguments.
+**What I did:**
+```bash
+# Added $# check before variable assignment
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <log-file-path> <environment>"
+    exit 1
+fi
 
-**Key mistake caught:** Validation was placed after variables - `basename` and `dirname` were already running on an empty `$1` before the check fired. Validation must be first, variables after.
+# Variables come after - not before
+path="$1"
+environment="$2"
+
+./report-header.sh                          # no args
+./report-header.sh /var/log/messages        # one arg
+./report-header.sh /var/log/messages prod   # two args - correct
+```
 
 **Output:**
-
 ```
-./report-header.sh
 Usage: ./report-header.sh <log-file-path> <environment>
-
-./report-header.sh /var/log/messages
 Usage: ./report-header.sh <log-file-path> <environment>
-
-./report-header.sh /var/log/messages prod
 =============================
 Report:    messages
 Location:  /var/log
@@ -84,110 +124,191 @@ Args passed: 2
 =============================
 ```
 
-**What I learned:** Variables must be assigned after validation - never touch `$1` before confirming it exists. `exit 1` stops execution immediately and signals failure to whatever called the script.
+**What this taught me:** The order matters - variables were initially assigned before the validation block, which meant `basename` and `dirname` were already running on an empty `$1` before the check fired. Moving validation to the top fixed it. The rule is now wired in: validate first, assign variables after.
 
 ---
 
-### Drill 2 - File existence check with -f
+### Drill 2 - File existence check with `-f`
 
-**What I did:** Created `check-file.sh` using `-f` to test whether a path is a regular file.
+**What I did:**
+```bash
+#!/bin/bash
 
-**Key mistake caught:** Missing space inside `[[ ]]` - `[[-f "$path"]]` throws a syntax error. Bash requires spaces inside the brackets: `[[ -f "$path" ]]`.
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <log-file-path>"
+    exit 1
+fi
 
-**Output:**
+path="$1"
 
-```
-./check-file.sh
-Usage: ./check-file.sh <log-file-path>
+if [[ -f "$path" ]]; then
+    echo "File exists: $path"
+else
+    echo "File not found: $path"
+fi
 
 ./check-file.sh /var/log/messages
-File exists: /var/log/messages
-
 ./check-file.sh /var/log/fake.log
+```
+
+**Output:**
+```
+File exists: /var/log/messages
 File not found: /var/log/fake.log
 ```
 
-**What I learned:** `-f` checks for a regular file. Always space inside `[[ ]]` - no exceptions.
+**What this taught me:** `-f` tests for a regular file specifically - not a directory, not a symlink target. A missing space inside `[[ ]]` throws a syntax error - `[[-f "$path"]]` fails, `[[ -f "$path" ]]` works. Spaces inside the brackets are not optional.
 
 ---
 
-### Drill 3 - elif for directory check
+### Drill 3 - `elif` for directory check
 
-**What I did:** Added `elif [[ -d "$path" ]]` to `check-file.sh` to handle directory paths.
+**What I did:**
+```bash
+if [[ -f "$path" ]]; then
+    echo "File exists: $path"
+elif [[ -d "$path" ]]; then
+    echo "Directory exists: $path"
+else
+    echo "Not found: $path"
+fi
+
+./check-file.sh /var/log           # directory
+./check-file.sh /var/log/messages  # file
+./check-file.sh /var/log/fake.log  # neither
+```
 
 **Output:**
-
 ```
-./check-file.sh /var/log
 Directory exists: /var/log
-
-./check-file.sh /var/log/messages
 File exists: /var/log/messages
-
-./check-file.sh /var/log/fake.log
-File not found: /var/log/fake.log
+Not found: /var/log/fake.log
 ```
 
-**What I learned:** `elif` chains conditions cleanly - bash evaluates top to bottom and stops at the first true condition.
+**What this taught me:** `elif` chains conditions - bash evaluates top to bottom and stops at the first true condition. The order matters: if you put `-d` before `-f`, a file that's also accessible as a path could match the wrong branch on some systems. File check first, then directory.
 
 ---
 
-### Drill 4 - String comparison with ||
+### Drill 4 - String comparison with `||`
 
-**What I did:** Created `env-check.sh` - validates that the argument is one of `prod`, `staging`, or `dev`.
+**What I did:**
+```bash
+env="$1"
 
-**Key mistake caught:** `[[ $env == "prod" || "staging" || "dev" ]]` - `|| "staging"` is always true because a non-empty string is truthy. Every `||` branch needs its own complete condition: `$env == "prod" || $env == "staging" || $env == "dev"`.
+# Wrong - "staging" alone is always true (non-empty string)
+if [[ $env == "prod" || "staging" || "dev" ]]; then
+
+# Correct - each branch is a full comparison
+if [[ $env == "prod" || $env == "staging" || $env == "dev" ]]; then
+    echo "Valid environment: $env"
+else
+    echo "Error: unknown environment '$env'"
+fi
+
+./env-check.sh prod
+./env-check.sh garbage
+```
 
 **Output:**
-
 ```
-./env-check.sh prod
 Valid environment: prod
-
-./env-check.sh garbage
 Error: unknown environment 'garbage'
 ```
 
-**What I learned:** Each `||` branch is a full independent condition - `$env ==` must be repeated every time. Shortcutting it produces a condition that's always true.
+**What this taught me:** `|| "staging"` is not a comparison - it's just a non-empty string, which bash evaluates as true. Every `||` branch must be a complete condition with its own `$env ==`. Shortcutting it produces a condition that always passes, which means the validation never actually validates anything.
 
 ---
 
-### Drill 5 - Nested if and input validation
+### Drill 5 - Nested `if` and prod warning
 
-**What I did:** Added `$#` validation and a nested `if` inside `env-check.sh` to warn on prod.
+**What I did:**
+```bash
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <environment>"
+    exit 1
+fi
 
-**Output:**
+env="$1"
 
-```
-./env-check.sh
-Usage: ./env-check.sh <environment>
+if [[ $env == "prod" || $env == "staging" || $env == "dev" ]]; then
+    echo "Valid environment: $env"
+    if [[ $env == "prod" ]]; then         # nested if - only fires inside the valid branch
+        echo "Warning: you are targeting production"
+    fi
+else
+    echo "Error: unknown environment '$env'"
+    exit 1
+fi
 
 ./env-check.sh prod
+./env-check.sh dev
+./env-check.sh garbage
+```
+
+**Output:**
+```
 Valid environment: prod
 Warning: you are targeting production
 
-./env-check.sh dev
 Valid environment: dev
+
+Error: unknown environment 'garbage'
 ```
 
-**What I learned:** `if` blocks nest cleanly. Prod warning fires only inside the valid environment branch - no false positives.
+**What this taught me:** `if` blocks nest cleanly inside other `if` blocks. The prod warning only fires inside the valid environment branch - it can't produce a false positive because it only runs when the outer condition already passed.
 
 ---
 
-## Lab Assignment
+## Lab
 
-**Scenario:** Automated scripts on an SRE team run against log files across multiple environments. A script that runs silently on bad input - wrong argument count, missing file, unknown environment - causes incidents. Every input must be validated before any processing happens.
+**Scenario:** Automated scripts run log checks across multiple environments on an SRE team. A script that runs silently on bad input - wrong argument count, missing file, unknown environment - produces incorrect results and potentially causes incidents. Every input must be validated before any processing begins.
 
-**Task:** `validate-inputs.sh` - accepts a log file path and environment name, validates all three conditions in sequence, fails fast on any failure, prints a clean summary only when all checks pass.
+**Task:** Create `validate-inputs.sh` that accepts a log file path and environment name, validates all three conditions in sequence, fails fast on any failure, and prints a clean summary only when all checks pass.
 
-**Steps I took:** Built the validation sequence - `$#` first, file check second, environment check third. Initial version assigned variables before validation and didn't exit on file-not-found, letting downstream blocks run on bad input.
+**What I built:**
+```bash
+#!/bin/bash
+# validate-inputs.sh
+# Usage: ./validate-inputs.sh <file-path> <environment>
 
-**Key mistakes corrected:**
-- Variables assigned before validation - moved to after `$#` check
-- File-not-found branch continued execution - flipped to `! -f` with `exit 1` to fail fast
+# ─── Input Validation ───────────────────────────────────────────────
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <file-path> <environment>"
+    exit 1
+fi
+
+# ─── Variables ──────────────────────────────────────────────────────
+path="$1"     # assigned after validation - not before
+env="$2"
+
+# ─── File Check ─────────────────────────────────────────────────────
+if [[ ! -f "$path" ]]; then           # guard on failure - not branch on success
+    echo "Error: file not found: $path"
+    exit 1                            # fail fast - nothing downstream runs
+fi
+
+# ─── Environment Check ──────────────────────────────────────────────
+if [[ $env == "prod" || $env == "staging" || $env == "dev" ]]; then
+    if [[ $env == "prod" ]]; then
+        echo "Warning: you are targeting production"
+    fi
+else
+    echo "Error: unknown environment '$env'"
+    exit 1
+fi
+
+# ─── Summary - only runs if all guards passed ────────────────────────
+echo "============================="
+echo "File:        $path"
+echo "Environment: $env"
+echo "Status:      all checks passed"
+echo "============================="
+exit 0
+```
+
+**What actually happened:** First attempt had variables assigned before validation - same mistake as Drill 1. The file check also branched on both cases (exists/not-found) without exiting on failure, so the environment check ran even when the file was missing. Flipping to `! -f` with `exit 1` fixed it - guard on failure, continue only on success.
 
 **The result:**
-
 ```
 ./validate-inputs.sh
 Usage: ./validate-inputs.sh <file-path> <environment>
@@ -209,27 +330,18 @@ Status:      all checks passed
 
 ---
 
-## Tips and Takeaways
+## Key Takeaways
 
-**Remember:**
+- Validate input before touching it - `$#` check first, variables after, every time without exception
+- Fail fast with `exit 1` on every guard - nothing downstream should run on bad input. The summary block only prints when everything passed
+- Every `||` branch is a full independent condition - `$env ==` repeated every time, no shortcuts
 
-- Validate input before touching it - `$#` check first, variables after, always
-- Fail fast with `exit 1` on every guard - nothing downstream should run on bad input
-- `[[ ]]` not `[ ]` - always, and always space inside the brackets
+## Tips
 
-**Common failure modes:**
-
-- Assigning variables before validation - `basename`/`dirname` run on empty strings before the check fires
-- Missing `exit 1` on failed guards - script continues and runs downstream blocks on bad input
-- `|| "value"` without a full condition - always evaluates true, validation never catches bad input
-
-**Next session:** Topic 5 - Loops. `for`, `while`, `until`, `break`, `continue`. The `$@` pattern from Topic 3 finally gets its loop.
+- The fail-fast pattern is how production scripts are written on real SRE teams. Each guard is a single responsibility check. If it fails, the script stops. If it passes, the next guard runs. The actual work is at the bottom - it only runs when every guard above it has cleared
+- `! -f` (guard on failure) is cleaner than branching on both cases. You write one `exit 1` and move on - the script continues only on the happy path
+- In production, a script that runs silently on bad input and produces wrong output is worse than a script that crashes loudly. Loud failures are debuggable. Silent wrong output causes incidents
 
 ---
 
-## Honest Notes
-
-The fail-fast pattern took two attempts to land - the instinct to branch on both cases (exists/not-found) instead of guarding on the failure case and continuing only on success. Once the `! -f` flip clicked, the structure made sense. Variables-before-validation was a repeat mistake from Topic 3 - it's now wired in as a rule not a guideline.
-
----
-
+> **Now do something with this.** Take `validate-inputs.sh` and deliberately break each guard - pass a directory instead of a file, pass an empty string as the environment, run it with three arguments. Watch exactly where it fails and what message it prints. Then add a fourth guard of your own - check that the file is readable *(hint: `-r` flag)*. If you can add a new guard without breaking the existing ones, you understand the fail-fast pattern.

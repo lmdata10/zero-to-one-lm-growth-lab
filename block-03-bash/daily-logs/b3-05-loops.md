@@ -6,107 +6,125 @@
 
 ---
 
-## What This Session Is About
+## What This Is
 
-**Loops** run the same block of code repeatedly - over a list of items, while a condition is true, or until a condition is met. They're what turns a script that handles one thing into a script that handles any number of things.
+**In plain language:** Loops run the same block of code repeatedly - over a list of items, while a condition is true, or until a condition is met. They turn a script that handles one thing into a script that handles any number of things without duplicating code.
 
-**Why it matters:** No real automation script operates on a single hardcoded target. Log checks, service health checks, deployment scripts - all run against multiple targets. Loops are how you write one script that scales to any number of inputs without rewriting it.
+**Why it matters:** No real automation script operates on a single hardcoded target. Log checks, service health checks, deployment scripts - all run against multiple targets. A script without loops either works on one thing or has the same code copy-pasted ten times. Neither is acceptable on a platform team.
 
 ---
 
-## Concept Anchor
+## Core Concept
 
-**The one example that made it click:** The `$@` loop pattern - finally completing the Drill 5 that couldn't be done in Topic 3 without loops. Any number of arguments, processed one at a time, with a counter tracking position.
+**`for` - iterate over a known list**
+
+```bash
+for item in one two three; do   # 'item' takes each value in turn
+    echo "$item"                # runs once per item in the list
+done                            # marks end of loop body
+```
+
+Use `for` when you know what you're iterating over - a list of values, file paths, `$@`.
+
+**`for` with `$@` - the pattern you'll use constantly**
+
+```bash
+for path in "$@"; do        # "$@" - all script arguments, one at a time
+    echo "Processing: $path"
+done
+```
+
+`"$@"` quoted handles arguments with spaces correctly. Unquoted `$@` breaks silently when any argument contains a space - always quote it.
+
+**`while` - run while a condition is true**
 
 ```bash
 count=1
-for path in "$@"; do
-    echo "$count: $path"
-    count=$((count + 1))
+while [[ $count -le 5 ]]; do   # keeps running as long as count is 5 or less
+    echo "Count: $count"
+    count=$((count + 1))        # increment - without this, infinite loop
 done
 ```
 
+Use `while` when you don't know how many iterations upfront - waiting for a service to come up, reading a file line by line, retrying until success.
+
+**`until` - run until a condition becomes true**
+
+Opposite of `while`. Less common - usually clearer to write `while` with a negated condition instead. Mentioned here so you recognise it.
+
+**`break` and `continue` - control mid-loop**
+
 ```bash
-./loop-demo.sh /var/log/messages /var/log/secure /var/log/dnf.log
-1: /var/log/messages
-2: /var/log/secure
-3: /var/log/dnf.log
+for num in 1 2 3 4 5 6; do
+    if [[ $num -eq 3 ]]; then
+        continue    # skip the rest of this iteration - jump to next num
+    fi
+    if [[ $num -eq 5 ]]; then
+        break       # exit the loop entirely - 6 never runs
+    fi
+    echo "$num"
+done
+# output: 1 2 4
 ```
 
----
+Both require an `if` check inside the loop to trigger conditionally. `break` and `continue` without a condition would always fire on the first iteration.
 
-## Loop Types
-
-| Loop | Use when |
-|---|---|
-| `for` | You know what you're iterating over - a list, `$@`, a range |
-| `while` | You don't know how many iterations - waiting for a condition, reading a file |
-| `until` | Opposite of while - runs until condition becomes true. Use `while` with negation instead if it reads cleaner |
-
----
-
-## Practice Drills
-
-### Drill 1 - for loop over a list
-
-**What I did:**
+**Counters inside loops**
 
 ```bash
-for env in prod staging dev; do
-    echo "$env"
+count=1                         # initialise BEFORE the loop - not inside it
+for item in "$@"; do
+    echo "$count: $item"
+    count=$((count + 1))        # or: ((count++)) - same thing, less typing
 done
 ```
 
-**Output:**
+Initialise counters before the loop. A variable declared inside the loop body resets on every iteration.
 
-```
-prod
-staging
-dev
-```
+**Watch out for:**
 
-**What I learned:** `do` opens the loop body, `done` closes it - everything between runs on each iteration.
+- Forgetting `done` - the loop never closes and the script throws a syntax error or hangs
+- Not incrementing the counter in a `while` loop - produces an infinite loop that you have to kill with Ctrl+C
+- Unquoted `"$@"` - breaks silently on arguments with spaces, one of the most common subtle bugs in shell scripts
 
 ---
 
-### Drill 2 - for loop with counter
+## Drills
+
+### Drill 1 - for loop over a list with counter
 
 **What I did:**
-
 ```bash
 count=1
 for env in prod staging dev; do
     echo "$count: $env"
-    ((count++))
+    ((count++))             # shorthand for count=$((count + 1))
 done
 ```
 
 **Output:**
-
 ```
 1: prod
 2: staging
 3: dev
 ```
 
-**What I learned:** `((count++))` is shorthand for `count=$((count + 1))` - both valid, less typing.
+**What this taught me:** `do` opens the loop body, `done` closes it - everything between runs once per item. `((count++))` and `count=$((count + 1))` are equivalent - `((count++))` is shorter and common in real scripts.
 
 ---
 
-### Drill 3 - while loop
+### Drill 2 - while loop counting to 5
 
 **What I did:**
-
 ```bash
 count=1
-while [[ $count -lt 6 ]]; do
+while [[ $count -le 5 ]]; do   # -le 5 reads as "less than or equal to 5"
     echo "Count: $count"
     count=$((count + 1))
 done
 ```
 
 **Output:**
-
 ```
 Count: 1
 Count: 2
@@ -115,78 +133,104 @@ Count: 4
 Count: 5
 ```
 
-**What I learned:** `-lt 6` works but `-le 5` reads more naturally for "count to 5" - variable names and operators should reflect intent clearly for whoever reads the script next.
+**What this taught me:** `-le 5` reads more naturally than `-lt 6` for "count to 5" - both work but the intent is clearer with `-le`. Also: if you forget `count=$((count + 1))` the loop runs forever. Always check that your `while` condition will eventually become false.
 
 ---
 
-### Drill 4 - for loop over $@
+### Drill 3 - for loop over $@
 
 **What I did:**
-
 ```bash
 count=1
-for path in "$@"; do
+for path in "$@"; do        # "$@" - each argument passed to the script
     echo "$count: $path"
     count=$((count + 1))
 done
-```
 
-```bash
 ./loop-demo.sh /var/log/messages /var/log/secure /var/log/dnf.log
 ```
 
 **Output:**
-
 ```
 1: /var/log/messages
 2: /var/log/secure
 3: /var/log/dnf.log
 ```
 
-**What I learned:** `"$@"` quoted handles arguments with spaces correctly. Loop variable named `path` not `env` - variable names should reflect what they contain.
+**What this taught me:** This is the drill that couldn't be completed in Topic 3 - `$@` needs a loop to be useful. The variable is named `path` not `env` because it holds file paths - variable names should always reflect what they contain. Anyone reading the script should understand what the loop variable represents without having to trace it back.
 
 ---
 
-### Drill 5 - break and continue
+### Drill 4 - break and continue
 
 **What I did:**
-
 ```bash
 for num in 1 2 3 4 5 6; do
     if [[ $num -eq 3 ]]; then
-        continue    # skip 3, jump to next iteration
+        continue    # skip 3 - jump straight to 4
     fi
     if [[ $num -eq 5 ]]; then
-        break       # stop loop entirely at 5
+        break       # stop the loop - 6 never runs
     fi
     echo "$num"
 done
 ```
 
 **Output:**
-
 ```
 1
 2
 4
 ```
 
-**What I learned:** `continue` skips the rest of the current iteration and moves to the next. `break` exits the loop entirely - nothing after it in the loop runs. Both require an `if` check inside the loop to trigger conditionally.
+**What this taught me:** Walking through manually made it click - 1 and 2 print normally, 3 hits `continue` and jumps to 4, 4 prints, 5 hits `break` and the loop stops entirely, 6 is never reached. Both `break` and `continue` need an `if` check - without one, the first iteration would always trigger them.
 
 ---
 
-## Lab Assignment
+## Lab
 
-**Scenario:** An SRE team checks multiple log files every shift. Instead of running a script once per file, one script accepts any number of paths, validates each exists, and prints a status line per file. Missing files are flagged and skipped - processing continues on the rest.
+**Scenario:** An SRE team checks multiple log files every shift. Running one script per file doesn't scale. One script should accept any number of log file paths, check each one exists, report status per file, and print a summary at the end. Missing files get flagged - processing continues on the rest.
 
-**Task:** `multi-log-check.sh` - accepts any number of log file paths, validates at least one was passed, loops over all of them, prints OK or MISSING per file, prints a summary at the end.
+**Task:** Create `multi-log-check.sh` that accepts any number of log file paths as arguments, validates at least one was passed, loops over all of them, prints `OK` or `MISSING` per file, and prints a summary showing total checked and total missing.
 
-**Steps I took:** Input validation with `-eq 0` to catch no arguments. Initialised `total` and `missing` counters before the loop. Incremented `total` on every iteration, `missing` only on file-not-found. Summary printed after the loop with `exit 0`.
+**What I built:**
+```bash
+#!/bin/bash
+# multi-log-check.sh
+# Usage: ./multi-log-check.sh <log_file1> <log_file2> ...
 
-**What actually happened:** Clean first attempt - structure was correct, counters in the right place, output matched expected.
+# ─── Input Validation ───────────────────────────────────────────────
+if [[ $# -lt 1 ]]; then                     # at least one argument required
+    echo "Usage: $0 <log_file1> <log_file2> ..."
+    exit 1
+fi
+
+# ─── Variables ──────────────────────────────────────────────────────
+total=0      # initialised before the loop - resets would break the count
+missing=0
+
+# ─── File Check Loop ────────────────────────────────────────────────
+for path in "$@"; do
+    if [[ -f "$path" ]]; then
+        echo "OK: $path"
+    else
+        echo "MISSING: $path"
+        missing=$((missing + 1))     # only increments on failure
+    fi
+    total=$((total + 1))             # increments on every iteration
+done
+
+# ─── Summary ────────────────────────────────────────────────────────
+echo "============================="
+echo "Total Files Checked: $total"
+echo "Total Files Missing: $missing"
+echo "============================="
+exit 0
+```
+
+**What actually happened:** Clean first attempt. The key structural decision was where to increment the counters - `total` goes inside the loop body after both branches so it counts every file regardless of outcome. `missing` goes only inside the `else` branch so it counts only failures.
 
 **The result:**
-
 ```
 ./multi-log-check.sh /var/log/messages /var/log/fake.log /var/log/secure
 OK: /var/log/messages
@@ -200,24 +244,18 @@ Total Files Missing: 1
 
 ---
 
-## Tips and Takeaways
+## Key Takeaways
 
-**Remember:**
+- `for` when you know the list, `while` when you're waiting for a condition - pick the right tool for the job
+- Always initialise counters before the loop, not inside it - variables inside the loop body reset on every iteration
+- `"$@"` quoted - always. This is not a style preference, it's correctness. Unquoted breaks on arguments with spaces
 
-- `"$@"` quoted - always. Unquoted breaks on arguments with spaces
-- Initialise counters before the loop, not inside it - variables reset on every iteration if declared inside
-- `continue` skips the current iteration, `break` exits the loop - both need an `if` check to trigger
+## Tips
 
-**Common failure modes:**
-
-- Forgetting `done` - loop never closes, script hangs or throws a syntax error
-- Incrementing the wrong counter inside the loop - `total` goes inside the loop body for every path, `missing` only inside the else branch
-- Using `[ ]` instead of `[[ ]]` - works but inconsistent with the rest of the block
-
-**Next session:** Topic 6 - Functions. Defining reusable blocks of logic, calling them, passing arguments, returning values. The validation patterns from Topics 3 and 4 become reusable functions.
+- The `for path in "$@"` pattern is one of the most reused patterns in real ops scripts. Any time you need to process multiple targets - files, servers, services - this is the structure. Learn it until it's automatic
+- In production scripts, continue processing after a failure when the task is reporting or checking - like this log checker. Exit immediately on failure when the task is modifying or deploying - you don't want to apply a broken config to 10 servers because the first one failed silently
+- Counter placement inside loops is a common source of off-by-one errors. Always ask: should this increment on every iteration, or only on specific ones?
 
 ---
 
-## Honest Notes
-
-Loops landed cleanly - the `$@` pattern made immediate sense after Topic 3 set up the need for it. `break` and `continue` needed an explanation before the drill but clicked immediately once the walk-through showed what each iteration does. Lab was a clean first attempt - Topics 3 and 4 patterns combined directly.
+> **Now do something with this.** Modify `multi-log-check.sh` to also check that each file is readable (not just that it exists) using the `-r` flag. Then run it as a different user or against a file with restricted permissions and see what happens. After that, try rewriting the while loop from Drill 2 as a `for` loop and the `for` loop from Drill 3 as a `while` loop - converting between them builds an understanding of when each one is the right choice.

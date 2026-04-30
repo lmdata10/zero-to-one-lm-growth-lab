@@ -8,9 +8,9 @@
 
 ## What This Session Is About
 
-A shell script is a text file containing commands you'd normally type one at a time in the terminal - captured, made repeatable, and executed as a unit. Add a shebang, make it executable, run it. That's the entire concept.
+A **shell script** is a text file containing commands you'd normally type one at a time in the terminal - captured, made repeatable, and executed as a unit. Add a shebang, make it executable, run it. That's the entire concept.
 
-**Why it matters in real platform/cloud/SRE work:** Automation starts here. Every health check, provisioning script, and log parser in a real SRE or sysadmin role is a shell script. If you can only run commands manually, you can't scale.
+**Why it matters:** Automation starts here. Every health check, provisioning script, and log parser in a real SRE or sysadmin role is a shell script. If you can only run commands manually, you can't scale.
 
 ---
 
@@ -38,8 +38,7 @@ health-2026-04-22.log
 
 ## Pre-Topic Drills - Vim Basics
 
-### Vim Drill 1 - Create a file, enter Insert mode, save and exit
-
+### Vim Drill 1 - Create a file called `test.sh`, enter Insert mode, type one line; anything, save it, and exit cleanly
 **What I did:**
 
 ```bash
@@ -236,9 +235,12 @@ student     3169  0.0  4.0 1299284 98576 ?       Sl   20:32   0:00 /usr/libexec/
 
 ## Lab Assignment
 
-**Scenario:** A sysadmin needs a health check script they can drop on any Rocky Linux box and get a clean snapshot written to a dated log file automatically - no manual redirection at the command line.
+**Scenario:** A sysadmin needs a health check script they can drop on any RHEL based Linux box and get a clean snapshot written to a dated log file automatically - no manual redirection at the command line.
 
-**Task:** Script writes output to `/tmp/health-YYYY-MM-DD.log` automatically, prints the log path to the terminal on run, executable with `./first.sh`.
+**Task:** 
+- Script writes its output to a log file in `/tmp/` named `health-YYYY-MM-DD.log` automatically — no `>>` needed at the command line
+- Log file path printed to the terminal when the script runs so the operator knows where to find it
+- Script is executable and runs cleanly with `./first.sh`
 
 **Steps I took:**
 
@@ -302,20 +304,19 @@ student     3169  0.0  4.0 1299284 98576 ?       Sl   20:32   0:00 /usr/libexec/
 
 ---
 
-## Tips and Takeaways
+### **Takeaways:**
 
-**Remember:**
-
+- Shebang `#!/bin/bash` on line 1, always - it's not optional
+- `#!/usr/bin/env bash` Finds Bash in your `$PATH`. Use for portability (macOS/Linux/BSD) and when using custom versions.
 - Define variables before you use them - bash reads top to bottom, no exceptions
+- `>` overwrites, `>>` appends - know which one you want before you reach for it
 - `{ } > $logfile` wraps a block and redirects all output at once - cleaner than redirecting every line individually
 - `$(command)` embeds command output into a string - `$(date +"%Y-%m-%d")` in a filename is a pattern you'll use constantly
 
-**Common failure modes:**
+### **Tips:**
 
-- Using a variable before defining it - output is blank or behaviour is wrong and it's not obvious why. Check variable order first.
-- Reaching for `>>` out of habit when you actually want `>` - health check scripts should overwrite, not accumulate
-
-**Next session:** Variables - declaring, referencing, quoting rules. Quoting is where most real bash bugs live.
+- The most common beginner mistake: using a variable before defining it. If output is blank or the file is named wrong, check variable order first.
+- Experienced practitioners write the log path to stdout even in automated scripts — always leave a breadcrumb so the operator knows where to look.
 
 ---
 
