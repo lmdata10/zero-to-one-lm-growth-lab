@@ -335,4 +335,8 @@ No errors found
 
 ---
 
-> **Now do something with this.** Add a second trap signal to `safe-log-check.sh` - handle `TERM` (the signal sent by `kill` and most process managers) the same way you handle `INT`. Then run the script in the background with `./safe-log-check.sh test.log &` and immediately send it a TERM signal with `kill $!`. Confirm the trap fires and the temp file is cleaned up. That's how you verify your cleanup works under real termination conditions, not just normal exits.
+#### Retain This
+
+- [ ] Add a `TERM` trap to `safe-log-check.sh` - run it in the background with `&` and kill it with `kill $!` - confirm cleanup fires
+- [ ] Search "bash set -e pitfalls" - read one post about edge cases with `set -e` and `if` blocks, there are more gotchas beyond what we hit
+- [ ] Re-read the pipefail drill - run the two `bash -c` commands again until the exit code difference is automatic

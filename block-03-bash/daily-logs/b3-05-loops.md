@@ -258,4 +258,8 @@ Total Files Missing: 1
 
 ---
 
-> **Now do something with this.** Modify `multi-log-check.sh` to also check that each file is readable (not just that it exists) using the `-r` flag. Then run it as a different user or against a file with restricted permissions and see what happens. After that, try rewriting the while loop from Drill 2 as a `for` loop and the `for` loop from Drill 3 as a `while` loop - converting between them builds an understanding of when each one is the right choice.
+#### Retain This
+
+- [ ] Add a `-r` readable check to `multi-log-check.sh` alongside the existing `-f` check - test with a `chmod -r` file
+- [ ] Rewrite the `while` loop from Drill 2 as a `for` loop and the `for` loop from Drill 3 as a `while` loop
+- [ ] Search "bash for loop vs while loop" - read one short post that explains when each is the right choice

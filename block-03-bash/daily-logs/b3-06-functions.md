@@ -339,4 +339,8 @@ Error: unknown environment 'garbage'
 
 ---
 
-> **Now do something with this.** Take `validate_file` and add a second check inside it - verify the file is also readable with `-r`. Then create a new script that sources a shared function file instead of defining the functions inline: write the four functions into a file called `lib.sh` and use `source ./lib.sh` at the top of a new script to load them. That's the pattern used in real ops script libraries.
+#### Retain This
+
+- [ ] Add a `-r` readable check inside `validate_file` - extend the function without breaking the scripts that call it
+- [ ] Create `lib.sh` with the four functions from the lab and `source ./lib.sh` in a new script - that's how shared function libraries work in real ops environments
+- [ ] Search "bash local variable scope" for a short explainer - reinforce why `local` matters before it causes a real bug

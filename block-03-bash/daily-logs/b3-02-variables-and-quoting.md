@@ -263,4 +263,8 @@ That header is a reusable component - you'll drop it into the log parser in a fe
 
 ---
 
-> Homework: Practice mnore learn about his [ ] to get a hold of concept in your memory - mental model - practice makes things stick for longer run, develop hands on skills and knoweledge - don't just watch - apply for a few minutes then forget
+#### Retain This
+
+- [ ] Re-read the quoting rules table in the Core Concept section before moving to Topic 3
+- [ ] Open `variables.sh` and rewrite it from scratch without copying - focus on getting quoting right without thinking about it
+- [ ] Search "bash quoting rules" on explainshell.com - paste a line from your script and see it broken down

@@ -238,7 +238,7 @@ student     3169  0.0  4.0 1299284 98576 ?       Sl   20:32   0:00 /usr/libexec/
 **Scenario:** A sysadmin needs a health check script they can drop on any RHEL based Linux box and get a clean snapshot written to a dated log file automatically - no manual redirection at the command line.
 
 **Task:** 
-- Script writes its output to a log file in `/tmp/` named `health-YYYY-MM-DD.log` automatically — no `>>` needed at the command line
+- Script writes its output to a log file in `/tmp/` named `health-YYYY-MM-DD.log` automatically - no `>>` needed at the command line
 - Log file path printed to the terminal when the script runs so the operator knows where to find it
 - Script is executable and runs cleanly with `./first.sh`
 
@@ -316,12 +316,12 @@ student     3169  0.0  4.0 1299284 98576 ?       Sl   20:32   0:00 /usr/libexec/
 ### **Tips:**
 
 - The most common beginner mistake: using a variable before defining it. If output is blank or the file is named wrong, check variable order first.
-- Experienced practitioners write the log path to stdout even in automated scripts — always leave a breadcrumb so the operator knows where to look.
+- Experienced practitioners write the log path to stdout even in automated scripts - always leave a breadcrumb so the operator knows where to look.
 
 ---
 
-## Honest Notes
+#### Retain This
 
-The lab hit harder than expected - not because the concepts were complex but because connecting three things (variable, block redirect, terminal echo) at once without a worked example was genuinely difficult starting from zero. The variable-order bug was the real lesson: bash doesn't plan ahead, it just executes. That's now wired in.
-
----
+- [ ] Re-read the Core Concept section - focus on why variable order matters and how block redirection works
+- [ ] Rewrite `first.sh` from memory without referencing the log - if you get stuck, that's the gap to fix
+- [ ] Search "bash output redirection explained" for a visual mental model of how `>` and `>>` work

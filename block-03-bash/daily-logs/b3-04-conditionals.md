@@ -344,4 +344,8 @@ Status:      all checks passed
 
 ---
 
-> **Now do something with this.** Take `validate-inputs.sh` and deliberately break each guard - pass a directory instead of a file, pass an empty string as the environment, run it with three arguments. Watch exactly where it fails and what message it prints. Then add a fourth guard of your own - check that the file is readable *(hint: `-r` flag)*. If you can add a new guard without breaking the existing ones, you understand the fail-fast pattern.
+#### Retain This
+
+- [ ] Add a fourth guard to `validate-inputs.sh` - check the file is readable with `-r` - without breaking the existing guards
+- [ ] Pass a directory instead of a file, an empty string as environment, and three arguments - watch exactly where each fails
+- [ ] Search "bash test operators cheat sheet" - bookmark one you can reference until the operators are automatic

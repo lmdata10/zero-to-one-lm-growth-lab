@@ -234,4 +234,8 @@ Args passed: 2
 
 ---
 
-> **Now do something with this.** Run `report-header.sh` with no arguments, one argument, and three arguments. Watch what happens each time. Then go manually add a `$#` check before Topic 4 covers it - try to make the script fail loudly with a usage message instead of silently. You won't write it perfectly yet but the attempt will make Topic 4 click faster when it arrives.
+#### Retain This
+
+- [ ] Run `report-header.sh` with no args, one arg, and three args - observe what breaks and where
+- [ ] Try adding a `$#` check manually before Topic 4 covers it - attempt to make it fail loudly with a usage message
+- [ ] Read `man bash` section on Special Parameters - search for `$#`, `$@`, `$0` to see the official definitions
